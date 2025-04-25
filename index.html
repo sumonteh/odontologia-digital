@@ -1,169 +1,62 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mapa de Conocimientos Colaborativo</title>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, query, where, deleteDoc, getDocs, doc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBVcoI67bm7sArLC1cpD9ar6or0uQmeeSU",
-      authDomain: "odontologiadigital-a6c43.firebaseapp.com",
-      projectId: "odontologiadigital-a6c43",
-      storageBucket: "odontologiadigital-a6c43.appspot.com",
-      messagingSenderId: "1042307285329",
-      appId: "1:1042307285329:web:a5ac8a6afa115308345370"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    $1
-    const clearAllButton = document.getElementById('clearAllButton');
-    const canvas = document.getElementById('canvasArea');
-    const options = document.querySelectorAll('.option');
-    let studentName = "";
-
-    $1
-      $1
-        document.getElementById('profeNotice').style.display = 'block';
-      });
-      }
-    });
-
-    options.forEach(option => {
-      option.addEventListener('click', async () => {
-        if (!studentName) return alert("Debes ingresar tu nombre primero.");
-        await addDoc(collection(db, "postits"), {
-          name: studentName,
-          tag: option.dataset.text,
-          timestamp: Date.now()
-        });
-      });
-    });
-
-    onSnapshot(collection(db, "postits"), (snapshot) => {
-      $1
-
-      clearAllButton.onclick = async () => {
-        if (!confirm('¿Estás seguro de que quieres borrar todos los post-its?')) return;
-        const q = query(collection(db, 'postits'));
-        const docs = await getDocs(q);
-        docs.forEach(async d => await deleteDoc(doc(db, 'postits', d.id)));
-      };
-
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        if (!grouped[data.name]) grouped[data.name] = [];
-        if (data.tag && data.tag !== '__init__') grouped[data.name].push(data.tag);
-      });
-
-      let offsetX = 20;
-      let offsetY = 20;
-      const usedPositions = new Set();
-
-      Object.entries(grouped).forEach(([name, tags], i) => {
-        const colors = [
-          '#fff9c4', '#ffe0b2', '#f8bbd0', '#d1c4e9', '#b3e5fc', '#c8e6c9', '#e6ee9c', '#ffecb3', '#f0f4c3', '#dcedc8'
-        ];
-        const colorMap = JSON.parse(localStorage.getItem('colorMap') || '{}');
-        if (!colorMap[name]) {
-          const chosen = colors[Math.floor(Math.random() * colors.length)];
-          colorMap[name] = chosen;
-          localStorage.setItem('colorMap', JSON.stringify(colorMap));
-        }
-        const randomColor = colorMap[name];
-
-        // Buscar posición libre
-        let posX = offsetX;
-        let posY = offsetY;
-        while (usedPositions.has(`${posX},${posY}`)) {
-          posX += 240;
-          if (posX > canvas.offsetWidth - 220) {
-            posX = 20;
-            posY += 160;
-          }
-        }
-        usedPositions.add(`${posX},${posY}`);
-
-        const box = document.createElement('div');
-        box.className = 'student-area';
-        box.style.backgroundColor = randomColor;
-        box.style.top = `${posY}px`;
-        box.style.left = `${posX}px`;
-        box.innerHTML = `<h4>${name}</h4>`;
-
-        tags.forEach(text => {
-          const tag = document.createElement('div');
-          tag.className = 'tag';
-          tag.innerText = text;
-          box.appendChild(tag);
-        });
-
-        canvas.appendChild(box);
-        offsetX += 240;
-        if (offsetX > canvas.offsetWidth - 220) {
-          offsetX = 20;
-          offsetY += 160;
-        }
-      });
-    });
-  </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mapa Interactivo Odontología Digital</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f0f0f0;
-      margin: 0;
       padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      background-color: #f0f0f0;
     }
     h2 {
-      margin-bottom: 0.5rem;
-    }
-    .postit {
-      background-color: #fff89a;
-      border: 2px solid #d4c700;
-      padding: 1rem;
-      border-radius: 8px;
-      box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
-      margin-bottom: 1rem;
-    }
-    .postit input {
-      font-size: 1rem;
-      padding: 0.5rem;
-      width: 100%;
-      border: none;
-      background-color: transparent;
-      font-weight: bold;
       text-align: center;
     }
-    .knowledge-options {
+    .postit, .knowledge-options {
       display: flex;
+      justify-content: center;
+      margin-bottom: 1rem;
       flex-wrap: wrap;
       gap: 1rem;
-      justify-content: center;
-      margin: 1rem 0;
+    }
+    input {
+      font-size: 1rem;
+      padding: 0.5rem;
+      width: 250px;
     }
     .option {
       padding: 0.5rem 1rem;
-      background-color: #d1ecf1;
       border: 2px solid #0c5460;
       border-radius: 8px;
+      background-color: #d1ecf1;
       cursor: pointer;
-      user-select: none;
-      transition: background-color 0.2s;
     }
     .option:hover {
       background-color: #bee5eb;
     }
+    #clearAllButton {
+      display: none;
+      background-color: #ffcccc;
+      border: 2px solid #cc0000;
+      border-radius: 6px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      font-weight: bold;
+      margin: 0 auto 1rem;
+    }
+    #profeNotice {
+      display: none;
+      text-align: center;
+      color: #cc0000;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
     .canvas-area {
       width: 100%;
-      max-width: 900px;
+      max-width: 1000px;
       min-height: 400px;
+      margin: 0 auto;
       background-color: white;
       border: 2px dashed #999;
       border-radius: 10px;
@@ -173,7 +66,6 @@
     .student-area {
       position: absolute;
       padding: 1rem;
-      background-color: #fff89a;
       border: 2px solid #d4c700;
       border-radius: 8px;
       box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
@@ -196,9 +88,9 @@
 <body>
   <h2>Mapa de Conocimientos en Odontología Digital</h2>
   <div class="postit">
-    <label for="studentName">Escribe tu nombre y presiona Enter:</label>
-    <input type="text" id="studentName" placeholder="Tu nombre aquí">
+    <input type="text" id="studentName" placeholder="Escribe tu nombre y presiona Enter" />
   </div>
+
   <div class="knowledge-options">
     <div class="option" data-text="Escáneres intraorales">Escáneres intraorales</div>
     <div class="option" data-text="Fresadoras CAM">Fresadoras CAM</div>
@@ -207,9 +99,137 @@
     <div class="option" data-text="Materiales para fresado">Materiales para fresado</div>
     <div class="option" data-text="Protocolo clínico digital">Protocolo clínico digital</div>
   </div>
-  $1
-<p id="profeNotice" style="display:none; font-weight: bold; color: #cc0000; margin-bottom: 1rem;">🔒 Modo docente activado</p>
 
-$1
+  <button id="clearAllButton">🧹 Borrar todos los post-its</button>
+  <p id="profeNotice">🔒 Modo docente activado</p>
+  <div class="canvas-area" id="canvasArea"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import {
+      getFirestore, collection, addDoc, onSnapshot, query,
+      where, deleteDoc, getDocs, doc
+    } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBVcoI67bm7sArLC1cpD9ar6or0uQmeeSU",
+      authDomain: "odontologiadigital-a6c43.firebaseapp.com",
+      projectId: "odontologiadigital-a6c43",
+      storageBucket: "odontologiadigital-a6c43.appspot.com",
+      messagingSenderId: "1042307285329",
+      appId: "1:1042307285329:web:a5ac8a6afa115308345370"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    function initApp() {
+      const inputName = document.getElementById('studentName');
+      const clearAllButton = document.getElementById('clearAllButton');
+      const profeNotice = document.getElementById('profeNotice');
+      const canvas = document.getElementById('canvasArea');
+      const options = document.querySelectorAll('.option');
+      let studentName = "";
+
+      inputName.addEventListener('keydown', async function(e) {
+        if (e.key === 'Enter' && inputName.value.trim() !== '') {
+          studentName = inputName.value.trim();
+          inputName.disabled = true;
+
+          if (studentName.toLowerCase() === 'profe') {
+            clearAllButton.style.display = 'inline-block';
+            profeNotice.style.display = 'block';
+          }
+
+          await addDoc(collection(db, "postits"), {
+            name: studentName,
+            tag: "__init__",
+            timestamp: Date.now()
+          });
+        }
+      });
+
+      options.forEach(option => {
+        option.addEventListener('click', async () => {
+          if (!studentName) return alert("Debes ingresar tu nombre primero.");
+          await addDoc(collection(db, "postits"), {
+            name: studentName,
+            tag: option.dataset.text,
+            timestamp: Date.now()
+          });
+        });
+      });
+
+      clearAllButton.onclick = async () => {
+        if (!confirm('¿Estás seguro de que quieres borrar todos los post-its?')) return;
+        const q = query(collection(db, 'postits'));
+        const docs = await getDocs(q);
+        docs.forEach(async d => await deleteDoc(doc(db, 'postits', d.id)));
+      };
+
+      onSnapshot(collection(db, "postits"), (snapshot) => {
+        canvas.innerHTML = '';
+        const grouped = {};
+
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          if (!grouped[data.name]) grouped[data.name] = [];
+          if (data.tag && data.tag !== '__init__') grouped[data.name].push(data.tag);
+        });
+
+        let offsetX = 20;
+        let offsetY = 20;
+        const usedPositions = new Set();
+
+        Object.entries(grouped).forEach(([name, tags], i) => {
+          const colors = [
+            '#fff9c4', '#ffe0b2', '#f8bbd0', '#d1c4e9', '#b3e5fc',
+            '#c8e6c9', '#e6ee9c', '#ffecb3', '#f0f4c3', '#dcedc8'
+          ];
+          const colorMap = JSON.parse(localStorage.getItem('colorMap') || '{}');
+          if (!colorMap[name]) {
+            const chosen = colors[Math.floor(Math.random() * colors.length)];
+            colorMap[name] = chosen;
+            localStorage.setItem('colorMap', JSON.stringify(colorMap));
+          }
+          const randomColor = colorMap[name];
+
+          let posX = offsetX;
+          let posY = offsetY;
+          while (usedPositions.has(`${posX},${posY}`)) {
+            posX += 240;
+            if (posX > canvas.offsetWidth - 220) {
+              posX = 20;
+              posY += 160;
+            }
+          }
+          usedPositions.add(`${posX},${posY}`);
+
+          const box = document.createElement('div');
+          box.className = 'student-area';
+          box.style.backgroundColor = randomColor;
+          box.style.top = `${posY}px`;
+          box.style.left = `${posX}px`;
+          box.style.position = 'absolute';
+          box.innerHTML = `<h4>${name}</h4>`;
+
+          tags.forEach(text => {
+            const tag = document.createElement('div');
+            tag.className = 'tag';
+            tag.innerText = text;
+            box.appendChild(tag);
+          });
+
+          canvas.appendChild(box);
+        });
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
+  </script>
 </body>
 </html>
