@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapa de Conocimientos - Odontología Digital</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h2 {
+      margin-bottom: 0.5rem;
+    }
+    .postit {
+      background-color: #fff89a;
+      border: 2px solid #d4c700;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+      margin-bottom: 1rem;
+    }
+    .postit input {
+      font-size: 1rem;
+      padding: 0.5rem;
+      width: 100%;
+      border: none;
+      background-color: transparent;
+      font-weight: bold;
+      text-align: center;
+    }
+    .knowledge-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin: 1rem 0;
+    }
+    .option {
+      padding: 0.5rem 1rem;
+      background-color: #d1ecf1;
+      border: 2px solid #0c5460;
+      border-radius: 8px;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.2s;
+    }
+    .option:hover {
+      background-color: #bee5eb;
+    }
+    .canvas-area {
+      width: 100%;
+      max-width: 900px;
+      min-height: 400px;
+      background-color: white;
+      border: 2px dashed #999;
+      border-radius: 10px;
+      padding: 1rem;
+      position: relative;
+    }
+    .student-area {
+      position: absolute;
+      padding: 1rem;
+      background-color: #fff89a;
+      border: 2px solid #d4c700;
+      border-radius: 8px;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+      min-width: 200px;
+    }
+    .student-area h4 {
+      margin: 0 0 0.5rem;
+      text-align: center;
+    }
+    .tag {
+      margin: 0.25rem 0;
+      padding: 0.4rem 0.8rem;
+      background-color: #c8e6c9;
+      border: 1px solid #388e3c;
+      border-radius: 5px;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <h2>Mapa de Conocimientos en Odontología Digital</h2>
+
+  <div class="postit">
+    <label for="studentName">Escribe tu nombre y presiona Enter:</label>
+    <input type="text" id="studentName" placeholder="Tu nombre aquí">
+  </div>
+
+  <div class="knowledge-options">
+    <div class="option" data-text="Escáneres intraorales">Escáneres intraorales</div>
+    <div class="option" data-text="Fresadoras CAM">Fresadoras CAM</div>
+    <div class="option" data-text="Impresión 3D">Impresión 3D</div>
+    <div class="option" data-text="Software CAD/CAM">Software CAD/CAM</div>
+    <div class="option" data-text="Materiales para fresado">Materiales para fresado</div>
+    <div class="option" data-text="Protocolo clínico digital">Protocolo clínico digital</div>
+  </div>
+
+  <div class="canvas-area" id="canvasArea">
+    <!-- Aquí aparecerá la zona del estudiante -->
+  </div>
+
+  <script>
+    const inputName = document.getElementById('studentName');
+    const canvas = document.getElementById('canvasArea');
+    const options = document.querySelectorAll('.option');
+    let studentBox = null;
+
+    inputName.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && inputName.value.trim() !== '') {
+        if (studentBox) studentBox.remove();
+
+        studentBox = document.createElement('div');
+        studentBox.className = 'student-area';
+        studentBox.style.top = '20px';
+        studentBox.style.left = '20px';
+        studentBox.innerHTML = `<h4>${inputName.value}</h4>`;
+        canvas.appendChild(studentBox);
+        inputName.disabled = true;
+      }
+    });
+
+    options.forEach(option => {
+      option.addEventListener('click', () => {
+        if (!studentBox) return alert("Debes ingresar tu nombre primero.");
+
+        const tag = document.createElement('div');
+        tag.className = 'tag';
+        tag.innerText = option.dataset.text;
+        studentBox.appendChild(tag);
+      });
+    });
+  </script>
+</body>
+</html>
