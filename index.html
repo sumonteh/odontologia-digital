@@ -20,20 +20,16 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const inputName = document.getElementById('studentName');
+    $1
+    const clearAllButton = document.getElementById('clearAllButton');
     const canvas = document.getElementById('canvasArea');
     const options = document.querySelectorAll('.option');
     let studentName = "";
 
-    inputName.addEventListener('keydown', async function(e) {
-      if (e.key === 'Enter' && inputName.value.trim() !== '') {
-        studentName = inputName.value.trim();
-        inputName.disabled = true;
-        await addDoc(collection(db, "postits"), {
-          name: studentName,
-          tag: "__init__",
-          timestamp: Date.now()
-        });
+    $1
+      $1
+        document.getElementById('profeNotice').style.display = 'block';
+      });
       }
     });
 
@@ -49,8 +45,14 @@
     });
 
     onSnapshot(collection(db, "postits"), (snapshot) => {
-      canvas.innerHTML = '';
-      const grouped = {};
+      $1
+
+      clearAllButton.onclick = async () => {
+        if (!confirm('¿Estás seguro de que quieres borrar todos los post-its?')) return;
+        const q = query(collection(db, 'postits'));
+        const docs = await getDocs(q);
+        docs.forEach(async d => await deleteDoc(doc(db, 'postits', d.id)));
+      };
 
       snapshot.forEach(doc => {
         const data = doc.data();
@@ -60,6 +62,7 @@
 
       let offsetX = 20;
       let offsetY = 20;
+      const usedPositions = new Set();
 
       Object.entries(grouped).forEach(([name, tags], i) => {
         const colors = [
@@ -72,11 +75,24 @@
           localStorage.setItem('colorMap', JSON.stringify(colorMap));
         }
         const randomColor = colorMap[name];
+
+        // Buscar posición libre
+        let posX = offsetX;
+        let posY = offsetY;
+        while (usedPositions.has(`${posX},${posY}`)) {
+          posX += 240;
+          if (posX > canvas.offsetWidth - 220) {
+            posX = 20;
+            posY += 160;
+          }
+        }
+        usedPositions.add(`${posX},${posY}`);
+
         const box = document.createElement('div');
         box.className = 'student-area';
         box.style.backgroundColor = randomColor;
-        box.style.top = `${offsetY}px`;
-        box.style.left = `${offsetX}px`;
+        box.style.top = `${posY}px`;
+        box.style.left = `${posX}px`;
         box.innerHTML = `<h4>${name}</h4>`;
 
         tags.forEach(text => {
@@ -191,6 +207,9 @@
     <div class="option" data-text="Materiales para fresado">Materiales para fresado</div>
     <div class="option" data-text="Protocolo clínico digital">Protocolo clínico digital</div>
   </div>
-  <div class="canvas-area" id="canvasArea"></div>
+  $1
+<p id="profeNotice" style="display:none; font-weight: bold; color: #cc0000; margin-bottom: 1rem;">🔒 Modo docente activado</p>
+
+$1
 </body>
 </html>
